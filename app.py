@@ -6,7 +6,7 @@ from wtforms import FileField, SubmitField
 from werkzeug.utils import secure_filename
 from wtforms.validators import InputRequired
 from main import main
-from analysis import get_tech_result, get_management_result, get_softskill_result, feedback
+from analysis import get_tech_result, get_management_result, get_softskill_result, feedback, result
 
 
 app = Flask(__name__)
@@ -18,7 +18,7 @@ app.config['MAXIMUM_FILE_SIZE'] = 2 * 1024 * 1024 # 2 MB
 
 class UploadFileForm(FlaskForm):
     file = FileField('File', validators=[InputRequired()])
-    submit = SubmitField('Upload File')
+    submit = SubmitField('Analyze')
 
 
 def allowed_extensions(filename):
@@ -50,14 +50,14 @@ def upload():
         if allowed_extensions(file.filename):
             file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))     
             skills = main('static/uploads/' + file.filename)
-            
+            skills_result = 'Your skills are: ' + skills
             tech_result = get_tech_result(skills)
             management_result = get_management_result(skills)
             softskill_result = get_softskill_result(skills)
 
-            result = feedback(tech_result, management_result, softskill_result)
+            feedback_result = feedback(tech_result, management_result, softskill_result)
             
-            return result
+            return result(skills_result, tech_result, management_result, softskill_result, feedback_result)
         else:
             return 'File extension is not supported. Only upload .docx or .pdf files.'
     return render_template('index.html', form=form)

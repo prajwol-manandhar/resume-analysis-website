@@ -78,12 +78,6 @@ def main(file_name):
     else:
         print('Only .pdf or .doc files can be uploaded')
 
-    user_skill_string = skills
 
-    tech_result = get_tech_result(user_skill_string)
-    management_result = get_management_result(user_skill_string)
-    softskill_result = get_softskill_result(user_skill_string)
-
-    feedback(tech_result, management_result, softskill_result)
 
 

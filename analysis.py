@@ -18,33 +18,37 @@ def get_tech_result(user_skill_string):
     tech_keyword = firestore.client().collection('keyword').document('technology').get().to_dict()['key']
     tech_keyword_string = ' '.join(str(e) for e in tech_keyword)
     result = get_result(user_skill_string, tech_keyword_string)
-    print('You are ' + result + '% compatible for tech jobs.')
-    return result
+    return 'You are ' + result + '% compatible for tech jobs.'
 
 
 def get_management_result(user_skill_string): 
     management_keyword = firestore.client().collection('keyword').document('management').get().to_dict()['key']
     management_keyword_string = ' '.join(str(e) for e in management_keyword)
     result = get_result(user_skill_string, management_keyword_string)
-    print('You are ' + result + '% compatible for management jobs.')
-    return result
+    return 'You are ' + result + '% compatible for management jobs.'
 
 
 def get_softskill_result(user_skill_string):
     softskill_keyword = firestore.client().collection('keyword').document('softskill').get().to_dict()['key']
     softskill_keyword_string = ' '.join(str(e) for e in softskill_keyword)
     result = get_result(user_skill_string, softskill_keyword_string)
-    print('You score ' + result + '% in softskills.')
-    return result
+    return 'You score ' + result + '% in softskills.'
 
 
 def feedback(tech_result, management_result, softskill_result):
-    if management_result > tech_result:
-        return 'You are more suitable for a management job'
+    if management_result > tech_result and softskill_result < '40':
+        return 'You are more suitable for a management job. \n You need to work on your soft skills.'
+    elif management_result < tech_result and softskill_result < '40':
+        return 'You are more suitable for a tech job. \n You need to work on your soft skills.'
+    elif management_result > tech_result and softskill_result > '40':
+        return 'You are more suitable for a management job. \n You have good soft skills.'
+    elif management_result < tech_result and softskill_result > '40':
+        return 'You are more suitable for  tech job. \n You have good soft skills.'
     else:
-        return 'You are more suitable for a tech job.'
+        return None
 
-    if softskill_result > '40':
-        print('You have good soft skills.')
-    else:
-        print('You need to work on your soft skills.')
+def result(skills_result, tech_result, management_result, softskill_result, feedback):
+    # result = skills + tech_result + '\n' + management_result + '\n' + softskill_result + '\n' + feedback
+    
+    result = '\n'.join([skills_result, tech_result, management_result, softskill_result, feedback])
+    return result
