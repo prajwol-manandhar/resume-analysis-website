@@ -56,7 +56,6 @@ def extract_skills(input_text):
         if ngram.lower() in all_keywords:
             found_skills.add(ngram)
     
-    print('All Keywords: ', all_keywords)
     return found_skills
 
 
@@ -66,13 +65,11 @@ def main(file_name):
     if file.endswith('.pdf'):
         text = extract_text_from_pdf(file)
         skills = extract_skills(text)
-        print('Result: ', skills)
         skills = str(skills)
         return skills
     elif file.endswith('.docx'):
         text = extract_text_from_docx(file)
         skills = extract_skills(text)
-        print('Result: ', skills)
         skills = str(skills)
         return skills
     else:

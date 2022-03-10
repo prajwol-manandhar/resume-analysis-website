@@ -36,19 +36,19 @@ def get_softskill_result(user_skill_string):
 
 
 def feedback(tech_result, management_result, softskill_result):
-    if management_result > tech_result and softskill_result < '40':
-        return 'You are more suitable for a management job. \n You need to work on your soft skills.'
-    elif management_result < tech_result and softskill_result < '40':
-        return 'You are more suitable for a tech job. \n You need to work on your soft skills.'
-    elif management_result > tech_result and softskill_result > '40':
-        return 'You are more suitable for a management job. \n You have good soft skills.'
-    elif management_result < tech_result and softskill_result > '40':
-        return 'You are more suitable for  tech job. \n You have good soft skills.'
+    if management_result > tech_result and softskill_result < 'You score 40% in softskills':
+        return 'You are more suitable for a management job. </br> You need to work on your soft skills.'
+    elif management_result < tech_result and softskill_result < 'You score 40% in softskills':
+        return 'You are more suitable for a tech job. </br> You need to work on your soft skills.'
+    elif management_result > tech_result and softskill_result > 'You score 40% in softskills':
+        return 'You are more suitable for a management job. </br> You have good soft skills.'
+    elif management_result < tech_result and softskill_result > 'You score 40% in softskills':
+        return 'You are more suitable for  tech job. </br> You have good soft skills.'
     else:
         return None
 
 def result(skills_result, tech_result, management_result, softskill_result, feedback):
     # result = skills + tech_result + '\n' + management_result + '\n' + softskill_result + '\n' + feedback
     
-    result = '\n'.join([skills_result, tech_result, management_result, softskill_result, feedback])
+    result = "</br>".join([skills_result, tech_result, management_result, softskill_result, feedback])
     return result

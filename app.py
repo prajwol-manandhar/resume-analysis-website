@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template
+from flask import Flask, after_this_request, request, render_template
 from flask_wtf import FlaskForm
 from pyparsing import And
 from wtforms import FileField, SubmitField
@@ -13,7 +13,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkey'
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 app.config['ALLOWED_EXTENSIONS'] = ['pdf', 'docx']
-app.config['MAXIMUM_FILE_SIZE'] = 2 * 1024 * 1024 # 2 MB
+app.config['MAXIMUM_FILE_SIZE'] = 2 * 1024 * 1024  # 2 MB
 
 
 class UploadFileForm(FlaskForm):
@@ -45,37 +45,33 @@ def allowed_extensions(filename):
 @app.route('/home', methods=['GET', 'POST'])
 def upload():
     form = UploadFileForm()
+
     if form.validate_on_submit():
-        file = form.file.data # first grab the file
+        file = form.file.data  # first grab the file
+
         if allowed_extensions(file.filename):
-            file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))     
+            file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
+            
             skills = main('static/uploads/' + file.filename)
             skills_result = 'Your skills are: ' + skills
+            
             tech_result = get_tech_result(skills)
             management_result = get_management_result(skills)
             softskill_result = get_softskill_result(skills)
-
             feedback_result = feedback(tech_result, management_result, softskill_result)
-            
+
+            try:
+                file = 'static/uploads/' + file.filename
+                os.remove(file)
+            except Exception as error:
+                app.logger.error('Error removing file: ', error)
+
             return result(skills_result, tech_result, management_result, softskill_result, feedback_result)
         else:
             return 'File extension is not supported. Only upload .docx or .pdf files.'
+            
     return render_template('index.html', form=form)
 
-
-@app.route('/analyze', methods=['GET', 'POST'])
-def analyze():
-    form = UploadFileForm()
-    file = form.validate_on_submit()
-    print(file)
-
-
-@app.route('/delete') 
-def remove():
-    form = UploadFileForm()
-    file = form.file.data
-    file.remove(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
-    
 
 if __name__ == '__main__':
     app.run(debug=True, port='3000')
