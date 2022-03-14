@@ -3,7 +3,7 @@ from firebase_admin import credentials, firestore
 import nltk
 import docx2txt
 from pdfminer.high_level import extract_text
-from analysis import get_tech_result, get_management_result, get_softskill_result, feedback
+from analysis import get_tech_result, get_management_result, get_softskill_result
 
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -74,7 +74,4 @@ def main(file_name):
         return skills
     else:
         print('Only .pdf or .doc files can be uploaded')
-
-
-
 
