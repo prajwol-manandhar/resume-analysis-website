@@ -9,11 +9,9 @@
     <title>Document</title>
 </head>
 <body>
-    Before you upload your file, please rename your file so that it doesn't contain space. And only upload pdf for docx files.
-    <hr />
     <form method="POST" enctype="multipart/form-data"> 
         {{form.hidden_tag()}} 
-        {{form.file()}}
+        Enter your userID: {{form.uid()}}
         {{form.submit()}}
     </form>
 </body>

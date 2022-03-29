@@ -4,9 +4,9 @@ from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField
 from werkzeug.utils import secure_filename
 from wtforms.validators import InputRequired
+from firebase_admin import firestore
 from main import main
-from analysis import get_tech_result, get_management_result, get_softskill_result, result, compare_result
-from job import suitable_job
+from analysis import get_result
 
 
 app = Flask(__name__)
@@ -53,12 +53,15 @@ def upload():
             file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
             
             skills = main('static/uploads/' + file.filename)
-            skills_result = 'Your skills are: ' + skills
-            
-            tech_result = get_tech_result(skills)
-            management_result = get_management_result(skills)
-            compared_result = compare_result(tech_result,management_result)
-            softskill_result = get_softskill_result(skills)
+
+            fields = ['technology', 'management', 'architect', 'civilservice', 'education', 'engineering', 'journalism', 'law', 'medical', 'science']
+            feedback = 'Your skills are {}. </br> '.format(skills)
+
+            for field in fields:
+                keyword = firestore.client().collection('keyword').document(field).get().to_dict()['key']
+                keyword_string = ' '.join(str(e) for e in keyword)
+                result = get_result(field, skills, keyword_string)
+                feedback = feedback + str(result) + '</br>'
 
             try:
                 file = 'static/uploads/' + file.filename
@@ -66,25 +69,11 @@ def upload():
             except Exception as error:
                 app.logger.error('Error removing file: ', error)
 
-            return result(skills, compared_result, softskill_result)
+            return feedback
         else:
             return 'File extension is not supported. Only upload .docx or .pdf files.'
             
     return render_template('index.html', form=form)
-
-
-@app.route('/job', methods=['GET', 'POST'])
-def job():
-    form = UploadFileForm()
-
-    if form.validate_on_submit():
-        file = form.file.data  # first grab the file
-
-        if allowed_extensions(file.filename):
-            file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
-            return suitable_job(main('static/uploads/' + file.filename))
-
-    return render_template('job.html', form=form)
 
 
 if __name__ == '__main__':

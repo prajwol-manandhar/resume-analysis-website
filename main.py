@@ -3,7 +3,7 @@ from firebase_admin import credentials, firestore
 import nltk
 import docx2txt
 from pdfminer.high_level import extract_text
-from analysis import get_tech_result, get_management_result, get_softskill_result
+
 
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -11,19 +11,23 @@ nltk.download('punkt')
 cred = credentials.Certificate("service_key.json")
 firebase_admin.initialize_app(cred)
 
+fields = ['technology', 'management', 'architect', 'civilservice', 'education', 'engineering', 'journalism', 'law', 'medical', 'science']
+keywords = []
 
-tech_keyword = firestore.client().collection('keyword').document('technology').get().to_dict()['key']
-management_keyword = firestore.client().collection('keyword').document('management').get().to_dict()['key']
-softskill_keyword = firestore.client().collection('keyword').document('softskill').get().to_dict()['key']
-all_keywords = tech_keyword + management_keyword + softskill_keyword
+for field in fields:
+    data = firestore.client().collection('keyword').document(field).get().to_dict()['key']
+    keywords = keywords + data
 
 
+# extract text from .docx files
 def extract_text_from_docx(docx_path):
     txt = docx2txt.process(docx_path)
     if txt:
         return txt.replace('\t', ' ')
     return None
 
+
+# extract text from .pdf files
 def extract_text_from_pdf(pdf_path):
     txt = extract_text(pdf_path)
     if txt:
@@ -31,6 +35,7 @@ def extract_text_from_pdf(pdf_path):
     return None
 
 
+# extract skills from the text
 def extract_skills(input_text):
     stop_words = set(nltk.corpus.stopwords.words('english'))
     word_tokens = nltk.tokenize.word_tokenize(input_text)
@@ -48,12 +53,12 @@ def extract_skills(input_text):
 
     # search for each token in our skills database
     for token in filtered_tokens:
-        if token.lower() in all_keywords:
+        if token.lower() in keywords:
             found_skills.add(token)
 
     # search for each bigram and trigram in our skills database
     for ngram in bigrams_trigrams:
-        if ngram.lower() in all_keywords:
+        if ngram.lower() in keywords:
             found_skills.add(ngram)
     
     return found_skills
