@@ -9,10 +9,12 @@
     <title>Document</title>
 </head>
 <body>
-    <form method="POST" enctype="multipart/form-data"> 
-        {{form.hidden_tag()}} 
-        {{form.file()}}
-        {{form.submit()}}
-    </form>
+    <form action="/">
+        <fieldset>
+            <legend>Result</legend>
+         {{feedback}}
+        </fieldset>
+        <input type="submit" value="Done">
+       </form>
 </body>
 </html>

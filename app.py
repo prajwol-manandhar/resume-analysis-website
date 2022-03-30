@@ -52,10 +52,10 @@ def upload():
         if allowed_extensions(file.filename):
             file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
             
-            skills = main('static/uploads/' + file.filename)
+            skills = main('static/uploads/' + file.filename.replace(' ', '_'))
 
             fields = ['technology', 'management', 'architect', 'civilservice', 'education', 'engineering', 'journalism', 'law', 'medical', 'science']
-            feedback = 'Your skills are {}. </br> '.format(skills)
+            feedback = 'Your skills are {}. \n'.format(skills)
 
             for field in fields:
                 keyword = firestore.client().collection('keyword').document(field).get().to_dict()['key']
@@ -69,7 +69,7 @@ def upload():
             except Exception as error:
                 app.logger.error('Error removing file: ', error)
 
-            return feedback
+            return render_template('feedback.html', feedback=feedback)
         else:
             return 'File extension is not supported. Only upload .docx or .pdf files.'
             
