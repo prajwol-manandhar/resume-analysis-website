@@ -50,31 +50,50 @@ def upload():
         file = form.file.data  # first grab the file
 
         if allowed_extensions(file.filename):
+            # Save the uploaded file in the directed path.
             file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
             
+            # Call main function in main.py by passing the file.
             skills = main('static/uploads/' + file.filename.replace(' ', '_'))
 
+            # Array of the fields present in the database.
             fields = ['technology', 'management', 'architect', 'civilservice', 'education', 'engineering', 'journalism', 'law', 'medical', 'science']
-            feedback = 'Your skills are {}. \n'.format(skills)
+            
+            # Initialization of feedback as a string.
+            feedback = 'Your skills are {}. </br>'.format(skills)
 
+            # Loops through all the fields in the database and then matches the keyword.
             for field in fields:
+                # Get keywords from the database.
                 keyword = firestore.client().collection('keyword').document(field).get().to_dict()['key']
+                
+                # Convert the keywords into string.
                 keyword_string = ' '.join(str(e) for e in keyword)
+                
+                # Call the get_result function in the analyze.py and the stores it.
                 result = get_result(field, skills, keyword_string)
+
+                # Concatenate the result into the feedback.
                 feedback = feedback + str(result) + '</br>'
 
+            # Remove the uploaded file after analyzing it.
             try:
                 file = 'static/uploads/' + file.filename
                 os.remove(file)
             except Exception as error:
                 app.logger.error('Error removing file: ', error)
 
-            return render_template('feedback.html', feedback=feedback)
+            return feedback
+            
+            # In order to return the webpage :
+            # return render_template('feedback.html', feedback = feedback)
         else:
             return 'File extension is not supported. Only upload .docx or .pdf files.'
-            
+    
+    # Return index.html where form is passed as form itself.
     return render_template('index.html', form=form)
 
 
 if __name__ == '__main__':
+    # Run the app on port 3000 while debug is True. 
     app.run(debug=True, port='3000')
