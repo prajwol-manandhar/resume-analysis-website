@@ -6,8 +6,7 @@ from werkzeug.utils import secure_filename
 from wtforms.validators import InputRequired
 from firebase_admin import firestore
 from main import main
-from analysis import get_result
-
+from analysis import get_result, check_result
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secretkey'
@@ -24,9 +23,8 @@ class UploadFileForm(FlaskForm):
 def allowed_extensions(filename):
     if not '.' in filename:
         return False
-
     f = filename.rsplit('.', 1)[1]
-
+    
     if f.lower() in app.config['ALLOWED_EXTENSIONS']:
         return True
     else:
@@ -52,13 +50,13 @@ def upload():
         if allowed_extensions(file.filename):
             # Save the uploaded file in the directed path.
             file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
-            
+
             # Call main function in main.py by passing the file.
             skills = main('static/uploads/' + file.filename.replace(' ', '_'))
 
             # Array of the fields present in the database.
             fields = ['technology', 'management', 'architect', 'civilservice', 'education', 'engineering', 'journalism', 'law', 'medical', 'science']
-            
+            result = {}
             # Initialization of feedback as a string.
             feedback = 'Your skills are {}. </br>'.format(skills)
 
@@ -66,27 +64,33 @@ def upload():
             for field in fields:
                 # Get keywords from the database.
                 keyword = firestore.client().collection('keyword').document(field).get().to_dict()['key']
-                
                 # Convert the keywords into string.
                 keyword_string = ' '.join(str(e) for e in keyword)
-                
-                # Call the get_result function in the analyze.py and the stores it.
-                result = get_result(field, skills, keyword_string)
+                # Call the get_result function in the analyze.py and the store it in form of key, value i.e dictionary.
+                result[field] = int(get_result(field, skills, keyword_string))
+            
+            # Sort the dictionary into descending order.
+            sorted_result = sorted(result.items(), key=lambda x: x[1], reverse=True)
 
+            # Loops through the sorted dictionary and then assign the results if not equal to 0.
+            for key, value in sorted_result:
+                checked_result = check_result(key, value)
+                if value == 0:
+                    break
                 # Concatenate the result into the feedback.
-                feedback = feedback + str(result) + '</br>'
+                feedback = feedback + str(checked_result) + '</br>'
 
             # Remove the uploaded file after analyzing it.
-            try:
-                file = 'static/uploads/' + file.filename
-                os.remove(file)
-            except Exception as error:
-                app.logger.error('Error removing file: ', error)
+            # try:
+            #     file = 'static/uploads/' + file.filename.replace(' ', '_')
+            #     os.remove(file)
+            # except Exception as error:
+            #     app.logger.error('Error removing file: ', error)
 
             return feedback
-            
             # In order to return the webpage :
             # return render_template('feedback.html', feedback = feedback)
+
         else:
             return 'File extension is not supported. Only upload .docx or .pdf files.'
     

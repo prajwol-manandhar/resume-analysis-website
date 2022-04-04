@@ -17,4 +17,8 @@ def get_result(field, user_skill_string, keyword_string):
     result = (singularity_matrix[1][0]*100)
     result = str(result)
     result = result.split('.', 1)[0]
+    # return 'You scored {}% in {} jobs.'.format(result, field)
+    return result
+
+def check_result(field, result):
     return 'You scored {}% in {} jobs.'.format(result, field)
