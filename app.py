@@ -58,7 +58,8 @@ def upload():
             fields = ['technology', 'management', 'architect', 'civilservice', 'education', 'engineering', 'journalism', 'law', 'medical', 'science']
             result = {}
             # Initialization of feedback as a string.
-            feedback = 'Your skills are {}. </br>'.format(skills)
+            feedback = 'Your skills are {}. \n\n'.format(skills)
+
 
             # Loops through all the fields in the database and then matches the keyword.
             for field in fields:
@@ -78,7 +79,9 @@ def upload():
                 if value == 0:
                     break
                 # Concatenate the result into the feedback.
-                feedback = feedback + str(checked_result) + '</br>'
+                feedback = feedback + '→ ' + str(checked_result) + '\n'
+            
+            feedback = feedback.replace('\n', '<br>')
 
             # Remove the uploaded file after analyzing it.
             # try:

@@ -14,15 +14,16 @@
             height: 400px;
             background-color: rgb(235, 229, 221);
             border-radius: 5px;
-            text-align: center;
             }
 
             .centered-element {
             margin: 0;
             position: absolute;
             top: 50%;
+            right: 20%;
+            left: 20%;
             transform: translateY(-50%);
-            text-align: center;
+            transform: translateY(-50%);
             }
         </style>
     </head>
@@ -42,14 +43,16 @@
         
         <div class="container">
             <div class="centered-element">
-                <div class="col-md-12 text-center">
+                <div class="col-md-12">
                     <form action="/">
                         <fieldset>
                             <legend>Result</legend>
-                         {{feedback}}
+                            {% autoescape false %}
+                            {{feedback}}
+                            {% endautoescape %}
                         </fieldset>
+                        <hr />
                         <input type="submit" value="Done">
-                       </form>
                     </form>
                 </div>
             </div>
