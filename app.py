@@ -52,7 +52,7 @@ def upload():
             file.save(os.path.join(os.path.abspath(os.path.dirname(__file__)), app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
 
             # Call main function in main.py by passing the file.
-            skills = main('static/uploads/' + file.filename.replace(' ', '_'))
+            skills = main('static\\uploads\\' + file.filename.replace(' ', '_'))
 
             # Array of the fields present in the database.
             fields = ['technology', 'management', 'architect', 'civilservice', 'education', 'engineering', 'journalism', 'law', 'medical', 'science']
@@ -87,9 +87,9 @@ def upload():
             # except Exception as error:
             #     app.logger.error('Error removing file: ', error)
 
-            return feedback
+            # return feedback
             # In order to return the webpage :
-            # return render_template('feedback.html', feedback = feedback)
+            return render_template('feedback.html', feedback = feedback)
 
         else:
             return 'File extension is not supported. Only upload .docx or .pdf files.'
