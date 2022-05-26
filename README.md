@@ -13,7 +13,7 @@ SETTING UP THE ENVIRONMENT
 - Activate virtual environment: 
         
 	- `source env/bin/activate` (For Mac)				
-	- `source env\scripts\activate` (For Windows)
+	- `.\env\Scripts\activate.ps1` (For Windows)
 
 	After activating the virtual environment:
         - Install all requirements: `python -m pip install -r requirements.txt`
